@@ -2,43 +2,48 @@ import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 import requests
 
+
 # Download NLTK data files (only the first time)
-# nltk.download('stopwords')
 nltk.download('punkt')
 
-# from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
 DEFAULT_LANG = 'english'
 DEFAULT_STOPWORD_SOURCE = 'https://countwordsfree.com/stopwords/{lang}/txt'
-MIN_TOKEN_LENGTH = 4
+MIN_TOKEN_LENGTH = 2
 
-# def get_extended_stopwords(lang=DEFAULT_LANG):
-#     """
-#     Returns an extended list of stopwords for the specified language.
 
-#     Parameters:
-#     lang (str): The language of the stopwords.
+def download_stopwords(lang) -> set[str]:
+    """
+    Alternative for a much smaller stopword list is already provided directly by nltk:
+    nltk.download('stopwords')
+    from nltk.corpus import stopwords
+    set(stopwords.words(lang))
+    """
+    url = DEFAULT_STOPWORD_SOURCE
+    response = requests.get(url.format(lang=lang))
+    stopwords = set(response.text.splitlines())
+    return stopwords
 
-#     Returns:
-#     set: A set of extended stopwords.
-#     """
-#     stop_words = set(stopwords.words(lang))
 
-#     # Add more stopwords to the list
-#     additional_stopwords = {
-#         'german': {'de', 'innen', 'statt', 'stattdessen', 'seid', 'seit', 'wofür', 'warum', 'noch', 'durch'},
-#         'english': {'could', 'would', 'should'}
-#     }
+def extend_stopwords(stopwords, lang):
+    additional_stopwords = {
+        'english': {'dot'},
+        'german': {'innen', 'gerne', 'ausdrücklich', 'wofür'}
+    }
+    stopwords.update(additional_stopwords.get(lang, []))
+    return stopwords
 
-#     for word in additional_stopwords['german']:
-#         if word in stop_words:
-#             print(f'{word} is already inside!')
+def get_stopwords(lang, extend_with_default_lang=True):
+    stopwords = download_stopwords(lang)
+    stopwords = extend_stopwords(stopwords, lang)
     
-#     stop_words.update(additional_stopwords.get(lang, []))
-#     return stop_words
-
-def download_stopwords(url=DEFAULT_STOPWORD_SOURCE, lang=DEFAULT_LANG):
+    if extend_with_default_lang and lang != DEFAULT_LANG:
+        default_stopwords = download_stopwords(DEFAULT_LANG)
+        stopwords.update(default_stopwords)
+        stopwords = extend_stopwords(stopwords, DEFAULT_LANG)
+    
+    return stopwords
 
 
 def filter_by_relevance(keywords, amount, lang=DEFAULT_LANG):
@@ -54,16 +59,15 @@ def filter_by_relevance(keywords, amount, lang=DEFAULT_LANG):
     list: A list of the n most relevant keywords.
     """
     # Get the stop words for the specified language
-    # fillwords = get_extended_stopwords(lang)
-
+    stopwords = get_stopwords(lang)
     
     # Preprocess each set of keywords in the list
     filtered_corpus = []
-    print('---TOKENS---')
+    # print('---TOKENS---')
     for keyword in keywords:
         tokens = word_tokenize(keyword, lang)
-        print(f'{keyword}: {tokens}')
-        filtered_tokens = [token for token in tokens if len(token) >= MIN_TOKEN_LENGTH and token.lower() not in fillwords] # and word.isalpha()
+        filtered_tokens = [token for token in tokens if len(token) >= MIN_TOKEN_LENGTH and token.lower() not in stopwords] # and word.isalpha()
+        # print(f'{keyword}: {filtered_tokens}')
         filtered_corpus.append(' '.join(filtered_tokens))
     
     # Calculate TF-IDF scores and return the most relevant keywords
