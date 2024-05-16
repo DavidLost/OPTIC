@@ -71,7 +71,7 @@ def get_language_name(lang_code: str) -> str:
     """
     try:
         language = langcodes.Language.get(lang_code)
-        return language.display_name()
+        return language.language_name()
     except Exception as e:
         print(f"Error converting language code to name: {e}")
         return "unknown"

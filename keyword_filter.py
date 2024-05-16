@@ -60,6 +60,8 @@ def filter_by_relevance(keywords, amount, lang=DEFAULT_LANG):
     """
     # Get the stop words for the specified language
     stopwords = get_stopwords(lang)
+
+    print(f'lang={lang} - got stopwords: {stopwords}')
     
     # Preprocess each set of keywords in the list
     filtered_corpus = []
