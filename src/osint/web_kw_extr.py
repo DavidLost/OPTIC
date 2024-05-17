@@ -17,7 +17,7 @@ def fetch_headers(url: str) -> dict:
     dict: The headers of the response.
     """
     try:
-        response = requests.head(url)
+        response = requests.head(url, verify=False)
         response.raise_for_status()
         return response.headers
     except requests.exceptions.RequestException as e:
@@ -35,7 +35,7 @@ def extract_text_from_url(url: str) -> str:
     str: The extracted text content.
     """
     try:
-        response = requests.get(url)
+        response = requests.get(url, verify=False)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
         return soup.get_text()

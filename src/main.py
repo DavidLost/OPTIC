@@ -1,9 +1,8 @@
 import numpy as np
-from math import sqrt
 from dataclasses import dataclass
-from web_kw_extr import extract_text_from_url, determine_language
-from keyword_filter import filter_by_relevance
-import private
+from osint.web_kw_extr import extract_text_from_url, determine_language
+from osint.keyword_filter import filter_by_relevance
+import private as private
 
 
 @dataclass
@@ -36,11 +35,11 @@ def calc_amount(total: int, amount=0.6):
 
 
 def scaled_function(total: int, factor: float, curvature=0.5):
-    MIN_OUT_FULL = 8
-    MAX_OUT_FACTOR = 1
+    MIN_OUT_AT_MAX_FACTOR = 8
+    MAX_OUT_SCALE = 1
     factor = min(max(factor, 0), 1)
-    min_value = factor * MIN_OUT_FULL
-    x = np.log(total * MAX_OUT_FACTOR)
+    min_value = factor * MIN_OUT_AT_MAX_FACTOR
+    x = np.log(total * MAX_OUT_SCALE)
     scaled_value = np.exp(x * (factor ** curvature))
     return round(max(scaled_value, min_value))
 

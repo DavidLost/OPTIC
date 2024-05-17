@@ -34,6 +34,7 @@ def extend_stopwords(stopwords, lang):
     stopwords.update(additional_stopwords.get(lang, []))
     return stopwords
 
+
 def get_stopwords(lang, extend_with_default_lang=True):
     stopwords = download_stopwords(lang)
     stopwords = extend_stopwords(stopwords, lang)

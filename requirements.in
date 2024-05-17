@@ -1,0 +1,16 @@
+# Actively used libraries
+# This file is used to craft the dependency tree for requirements.txt via pip-compile
+
+requests
+
+bs4
+
+langdetect
+
+langcodes
+
+numpy
+
+nltk
+
+scikit-learn
